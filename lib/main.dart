@@ -25,9 +25,19 @@ void main() async {
   Directory? dir = await getTemporaryDirectory();
 
   Hive.init(dir.path);
-  Hive.registerAdapter<AlbumModel>(AlbumModelAdapter());
-  Hive.registerAdapter<ArtistModel>(ArtistModelAdapter());
-  Hive.registerAdapter<TrackModel>(TrackModelAdapter());
+
+  // Avoid multiple registration of Hive adapters
+  if (!Hive.isAdapterRegistered(AlbumModelAdapter().typeId)) {
+    Hive.registerAdapter(AlbumModelAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(ArtistModelAdapter().typeId)) {
+    Hive.registerAdapter(ArtistModelAdapter());
+  }
+
+  if (!Hive.isAdapterRegistered(TrackModelAdapter().typeId)) {
+    Hive.registerAdapter(TrackModelAdapter());
+  }
 
   await EasyLocalization.ensureInitialized();
   runApp(EasyLocalization(
