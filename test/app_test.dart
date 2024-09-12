@@ -4,7 +4,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:music_app/main.dart' as app;
 import 'package:music_app/presentation/pages/home_page.dart';
 import 'package:music_app/presentation/widgets/appbar_search_button.dart';
-import 'package:get_it/get_it.dart';  // Import GetIt
+import 'package:get_it/get_it.dart';
 import 'package:music_app/presentation/widgets/album_widget.dart';
 import 'package:music_app/presentation/pages/search_page.dart';
 
@@ -27,7 +27,7 @@ void main() {
 
       // Tap on the AppbarSearchButton
       await tester.tap(find.byType(AppbarSearchButton));
-      await tester.pumpAndSettle();  // Wait for any animations to complete
+      await tester.pumpAndSettle();
 
       // Search for desired music
       await tester.enterText(find.byType(TextField).at(0), 'coldplay');
@@ -59,7 +59,7 @@ void main() {
 
       // Tap on the AppbarSearchButton
       await tester.tap(find.byType(AppbarSearchButton));
-      await tester.pumpAndSettle();  // Wait for any animations to complete
+      await tester.pumpAndSettle();
 
       // Search for desired music
       await tester.enterText(find.byType(TextField).at(0), 'michael jackson');
@@ -84,7 +84,7 @@ void main() {
       await tester.tap(find.byKey(const Key('album_favorite_button')).at(0));
       await tester.pumpAndSettle();  // Wait for any animations to complete
 
-      // Simulate programmatic navigation if needed
+      // Simulate navigation
       // Pop twice
       for (int i = 0; i < 2; i++) {
         tester.state<NavigatorState>(find.byType(Navigator)).pop();
