@@ -35,6 +35,7 @@ class AlbumsWidget extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: FavoriteButton(
+                key: const Key('album_favorite_button'), // Add this key for testing
                 isFavorite: album.isFavorite,
                 iconColor: AppConst.kAppSecondaryColor,
                 valueChanged: (_isFavorite) {

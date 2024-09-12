@@ -63,12 +63,35 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap on a specific artist
-      await tester.tap(find.text('Michael Jackson & Janet Jackson'));
+      await tester.tap(find.text('Michael Jackson'));
       await tester.pumpAndSettle();
 
       // Tap the favorite button for the album
+      expect(
+        find.descendant(
+          of: find.byType(Card),
+          matching: find.text('Thriller'),
+        ),
+        findsOneWidget,
+      );
+
       await tester.tap(find.byKey(const Key('album_favorite_button')).at(0));
       await tester.pumpAndSettle();  // Wait for any animations to complete
+
+      // await tester.tap(find.byTooltip('Back'));
+      // await tester.pumpAndSettle();
+
+      // Simulate programmatic navigation if needed
+      // Pop three times
+      for (int i = 0; i < 2; i++)
+      {tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();}
+      expect(find.byType(HomePage), findsOneWidget);
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.text('Thriller'), findsOneWidget);
+
+
+      await Future.delayed(const Duration(seconds: 5));
     });
   });
 }
