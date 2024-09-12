@@ -33,21 +33,27 @@ void main() {
       await tester.enterText(find.byType(TextField).at(0), 'coldplay');
 
       // Tap to search for the music
-      await tester.tap(find.byKey(Key('search_button')));
-      await tester.pumpAndSettle();
-      expect(find.byType(SearchPage), findsOneWidget);
+      try {
+        await tester.tap(find.byKey(Key('search_button')));
+        await tester.pumpAndSettle();
+      } catch (e) {
+        print('Error during tapping and settling: $e');
+        fail('Failed to tap on the search button and settle.');
+      }
 
+      expect(find.byType(SearchPage), findsOneWidget);
     });
 
     testWidgets('Home screen text assertion', (tester) async {
       app.main();
       await tester.pumpAndSettle();
 
-      // Assert that the app shows the "No Albums added yet" message
-      expect(find.text('No Albums added yet'), findsOneWidget);  // Replace with actual message if necessary
+      // Assert that the app displays the texts correctly
+      expect(find.text('No Albums added yet'), findsOneWidget);
+      expect(find.text('Music App'), findsOneWidget);
     });
 
-    testWidgets('favorite album', (tester) async {
+    testWidgets('favorite album, Verify Album Removal from Favorites', (tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -78,18 +84,28 @@ void main() {
       await tester.tap(find.byKey(const Key('album_favorite_button')).at(0));
       await tester.pumpAndSettle();  // Wait for any animations to complete
 
-      // await tester.tap(find.byTooltip('Back'));
-      // await tester.pumpAndSettle();
-
       // Simulate programmatic navigation if needed
-      // Pop three times
-      for (int i = 0; i < 2; i++)
-      {tester.state<NavigatorState>(find.byType(Navigator)).pop();
-      await tester.pumpAndSettle();}
+      // Pop twice
+      for (int i = 0; i < 2; i++) {
+        tester.state<NavigatorState>(find.byType(Navigator)).pop();
+        await tester.pumpAndSettle();
+      }
+
       expect(find.byType(HomePage), findsOneWidget);
       expect(find.byType(Card), findsOneWidget);
       expect(find.text('Thriller'), findsOneWidget);
 
+      await tester.tap(find.byKey(const Key('album_favorite_button')));
+      await tester.pumpAndSettle();
+
+      // Find all Card widgets
+      final cardFinder = find.byType(Card);
+
+      // Count the number of Card widgets
+      final cardCount = cardFinder.evaluate().length;
+
+      // Verify the number of Card widgets
+      expect(cardCount, equals(0));
 
       await Future.delayed(const Duration(seconds: 5));
     });
