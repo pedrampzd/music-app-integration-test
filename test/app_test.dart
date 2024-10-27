@@ -1,17 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:music_app/main.dart' as app;
-import 'package:music_app/presentation/pages/home_page.dart';
-import 'package:music_app/presentation/widgets/appbar_search_button.dart';
+import 'page_objects/home_page_object.dart';
+import 'page_objects/search_page_object.dart';
+import 'page_objects/album_page_object.dart';
 import 'package:get_it/get_it.dart';
-import 'package:music_app/presentation/widgets/album_widget.dart';
-import 'package:music_app/presentation/pages/search_page.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  // Reset GetIt before each test
   setUp(() {
     GetIt.instance.reset();
   });
@@ -21,32 +20,21 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
 
-      // Verify the presence of widgets
-      expect(find.byType(HomePage), findsOneWidget);
-      expect(find.byType(AppbarSearchButton), findsOneWidget);
+      final homePage = HomePageObject(tester);
+      await homePage.verifyPage();
+      await homePage.tapSearchButton();
 
-      // Tap on the AppbarSearchButton
-      await tester.tap(find.byType(AppbarSearchButton));
-      await tester.pumpAndSettle();
-
-      // Search for desired music
-      await tester.enterText(find.byType(TextField).at(0), 'coldplay');
-
-      // Tap to search for the music
-      try {
-        await tester.tap(find.byKey(Key('search_button')));
-        await tester.pumpAndSettle();
-      } catch (e) {
-        print('Error during tapping and settling: $e');
-        fail('Failed to tap on the search button and settle.');
-      }
-
-      expect(find.byType(SearchPage), findsOneWidget);
+      final searchPage = SearchPageObject(tester);
+      await searchPage.searchForMusic('coldplay');
+      await searchPage.verifySearchPage();
     });
 
     testWidgets('Home screen text assertion', (tester) async {
       app.main();
       await tester.pumpAndSettle();
+
+      final homePage = HomePageObject(tester);
+      await homePage.verifyPage();
 
       // Assert that the app displays the texts correctly
       expect(find.text('No Albums added yet'), findsOneWidget);
@@ -57,46 +45,27 @@ void main() {
       app.main();
       await tester.pumpAndSettle();
 
-      // Tap on the AppbarSearchButton
-      await tester.tap(find.byType(AppbarSearchButton));
-      await tester.pumpAndSettle();
+      final homePage = HomePageObject(tester);
+      await homePage.tapSearchButton();
 
-      // Search for desired music
-      await tester.enterText(find.byType(TextField).at(0), 'michael jackson');
+      final searchPage = SearchPageObject(tester);
+      await searchPage.searchForMusic('michael jackson');
+      await searchPage.selectArtist('Michael Jackson');
 
-      // Tap to search for the music
-      await tester.tap(find.byKey(Key('search_button')));
-      await tester.pumpAndSettle();
-
-      // Tap on a specific artist
-      await tester.tap(find.text('Michael Jackson'));
-      await tester.pumpAndSettle();
-
-      // Tap the favorite button for the album
-      expect(
-        find.descendant(
-          of: find.byType(Card),
-          matching: find.text('Thriller'),
-        ),
-        findsOneWidget,
-      );
-
-      await tester.tap(find.byKey(const Key('album_favorite_button')).at(0));
-      await tester.pumpAndSettle();  // Wait for any animations to complete
+      final albumPage = AlbumPageObject(tester);
+      await albumPage.favoriteAlbum('Thriller');
 
       // Simulate navigation
-      // Pop twice
       for (int i = 0; i < 2; i++) {
         tester.state<NavigatorState>(find.byType(Navigator)).pop();
         await tester.pumpAndSettle();
       }
 
-      expect(find.byType(HomePage), findsOneWidget);
+      await homePage.verifyPage();
       expect(find.byType(Card), findsOneWidget);
       expect(find.text('Thriller'), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('album_favorite_button')));
-      await tester.pumpAndSettle();
+      await albumPage.removeAlbumFromFavorites();
 
       // Find all Card widgets
       final cardFinder = find.byType(Card);
